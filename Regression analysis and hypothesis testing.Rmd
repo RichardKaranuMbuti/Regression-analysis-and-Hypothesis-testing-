@@ -1,0 +1,372 @@
+---
+title: "Homework 8"
+author: "Your Name Here"
+date: "Due 11/2/2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+The point value for each exercise is noted in the exercise title. 
+
+For questions that require code, please create or use the code chunk directly below the question and type your code there.  Your knitted pdf will then show both the code and the output, so that we can assess your understanding and award any partial credit.  
+
+For written questions, please provide your answer after the indicated *Answer* prompt.
+
+You are encouraged to knit your file as you work, to check that your coding and formatting are done so appropriately.  This will also help you identify and locate any errors more easily.
+
+# Homework Setup 
+
+We'll use the following packages for this homework assignment.  We'll also read in data from a csv file.  To access the data, you'll want to download the dataset from Canvas, and place it in the same folder as this R Markdown document.  You'll then be able to use the following code to load in the data.  
+
+```{r libraryload}
+library(ggplot2)
+library(leaps)
+library(faraway)
+```
+
+***
+
+# Exercise 1: Chick-fil-A Order Type [25 points]
+
+For this exercise, we'll consider an extended dataset with nutritional information about menu items from Chick-fil-A.  Be sure to use the updated cfa version of the dataset for Homework 8 as posted to Canvas, which is different from the Homework 7 version.  
+
+## part a
+
+Read in the cfa dataset from Canvas.  When you read in the cfa file, include the argument `stringsAsFactors = T`.
+
+```{r exercise1a}
+# Use this code chunk for your answer.
+df=read.csv("D:\\cfa.csv",stringsAsFactors = T)
+```
+
+## part b
+
+What proportion of menu items at Chick-fil-A include chicken?
+
+```{r exercise1b}
+# Use this code chunk for your answer.
+library(tidyverse)
+chicken=df %>% filter(has_chicken == 1)
+nrow(chicken)
+```
+
+**Answer:**
+35 out of 116 menu items at Chick-fil-A include chicken
+
+## part c
+
+Fit a model predicting the calories of a menu item from the has_chicken variable.  What is the estimate of the difference in mean calories between all menu items that do have chicken and all menu items that do not have chicken?  
+
+```{r exercise1c}
+# Use this code chunk for your answer.
+model1=lm(Calories~has_chicken,data=df)
+summary(model1)
+t.test(df$Calories)$conf.int
+```
+
+**Answer:**
+Mean difference(95% level of confidence) is 200.8796 to 377.3963
+
+## part d
+
+Is there a statistically significant difference in mean calories between all menu items that do have chicken and all menu items that do not have chicken?  Explain.
+
+
+```{r exercise1ee}
+# Use this code chunk for your answer.
+t.test(df$has_chicken)
+```
+**Answer:**
+Null hypothesis: No significant mean difference
+Alternative hypothesis: There is a significant difference in mean
+Desired level of confidence=95% therefore alpha level = 0.05
+Decision rule: Reject the null hypothesis if p-value<alpha
+Since the p-value from the results of the above t-test is > 5 we can reject the null hypothesis and conclude that there is a  a statistically significant difference in mean calories between all menu items that do have chicken and all menu items that do not have chicken
+
+## part e
+
+Now, let's look at the category variable.  Create a table that contains a count of how many menu items fall into each possible category.  *Hint: this can be done with one line of code.*
+
+```{r exercise1e}
+# Use this code chunk for your answer.
+library(janitor)
+tabyl(df,Menu)
+```
+
+## part f
+
+What type of variable does **`R`** consider or classify the category variable as?  If the category variable is included as a first-order term in a linear model, what will its contribution to the p for the model be?
+
+
+**Answer:**
+R classifies variables that are within a set of specified integer scale as categorical variables.If the category variable is included as a first-order term in a linear model, they will have no effect on p-value and will tend to affect the p-value as normal predictor variables
+
+
+## part g
+
+Fit a model predicting the calories of a menu item from the category of that menu item and the serving size.  Print a summary of this model.
+
+```{r exercise1g}
+# Use this code chunk for your answer.
+model2=lm(Calories~category+Serving.size,data=df)
+summary(model2)
+```
+
+## part h
+
+What is the baseline level for this model?
+
+
+**Answer:**
+Calories=237.85533-561.15767(categorydrinks)+0.83220(Serving.size)
+R-square=52%
+Only 52 % of variation in calories is explaine by Serving.size and category
+
+## part i
+
+From the summary in part g, I notice that one of the estimates is provided as -70.3.  What does this value mean?
+
+**Answer:**
+This means that it 70 units for that category affects 1 unit of calories
+***
+
+# Exercise 2: High School Scores [30 points]
+
+**If you haven't already, you may need to download the faraway package using `install.packages(faraway)`.**
+
+For our second exercise of Homework 8, we'll use the `hsb` dataset included in the `faraway` package.  You can read more about the `hsb` dataset by using `help(hsb)`
+
+```{r exercise2starter}
+data(hsb)
+hsb[sapply(hsb, is.factor)] <- data.matrix(hsb[sapply(hsb, is.factor)])
+
+```
+
+## part a
+
+There are 10 variables contained in the High School and Beyond dataset in addition to the `id` variable, which serves as a record of the observational unit -- the student.  For each of the 10 variables, record its **type**, including both the general and specific type.
+
+**Answer:**
+Gender-Categorial-Binary
+Race-Categorical-Norminal
+Ses-Categorical-ordinal
+schtype-categorical-Nominal
+pro-categorical-norminal
+read-Numerical-continous
+write-Numerical-continous
+math-Numerical-continous
+science-Numerical-continous
+socst-Numerical-continous
+
+## part b
+
+Fit a model that predicts the math score from the reading score, writing score, high school program, school type, and socioeconomic status.  Print the summary, including the coefficients table, of the results.  What is the value of p for this model?
+
+```{r exercise2b}
+# Use this code chunk for your answer.
+model3=lm(math~read+write+prog+schtyp+ses,data=hsb)
+summary(model3)
+          
+```
+
+**Answer:**
+p-value: < 2.2e-16
+
+## part c
+
+What is the baseline level for each of the categorical predictors in this model?
+
+**Answer:**
+Read,write and prog are the only significant predictors in the model
+
+## part d
+
+Interpret the fitted intercept estimate.
+
+**Answer:**
+The fitted intercept estimate is 19.72059.This is the value of score in maths(the predicted variable) when all the predictors are equals to zero
+
+## part e
+
+From the output in part b, we'd like to determine if there's a significant difference in the mean math scores between being from a high socioeconomic class compared to being in a middle socioeconomic class, holding reading scores, writing scores, high school program, and school type constant.  What about between students from a high socioeconomic class compared to a low socioeconomic class, holding reading scores, writing scores, high school program, and school type constant?  Report your answer to these two tests, including numeric support in your written answer.
+
+```{r exercise2e}
+# Use this code chunk for your answer, if needed.
+t.test(hsb$ses)
+```
+
+**Answer:**
+Since p-value<0.05,we can conclude that  significant difference in the mean math scores between being from a high socioeconomic class compared to being in a middle socioeconomic class and a low economic class holding reading scores, writing scores, high school program, and school type constant
+
+## part f
+
+We'd like to determine if there's a statistically significant difference of the mean math scores depending on the high school program, holding reading scores, writing scores, school type, and socioeconomic class constant.  We'd like to be able to compare each set of two programs (academic vs. general, academic vs. vocation, & general vs. vocation).
+
+Perform any necessary calculations to determine if there's a statistically significant difference between each of these sets of two programs.  Report your answer for these three tests, including numeric support.
+
+```{r exercise2f}
+# Use this code chunk for your answer.
+t.test(hsb$prog)
+```
+
+**Answer:**
+Since the p value is less than 0.05(p-value < 2.2e-16),there's a statistically significant difference between each of these sets of two programs
+
+## part g
+
+Alicia isn't sure about including the school type variable and the high school program variable in the model to predict math scores.  Alicia would like to perform a single statistical test to decide whether to include these two variables in the model from part b.  Help Alicia perform this test.  Generate the R output, report the *p*-value, the decision of the test, and the model that should be used going forward.
+
+```{r exercise2g}
+# Use this code chunk for your answer.
+cor.test(hsb$math,hsb$schtyp)
+
+```
+
+**Answer:**
+Since the p value for correlation coefficient(p-value = 0.1661) is > 0.05,Alicia should not include school type variable in the model as it will be insignificant
+## part h
+
+Suppose that an additional type of school, a charter school, recently opened in the years since the hsb data were collected.  Based on the model from part b, could we calculate a fitted value for a student who attended the charter school?  Explain.
+
+**Answer:**
+No, the value cannot be calculated since the new charter type of school was not taken into account when running the model
+
+***
+
+# Exercise 3: US Wage Model Interpretations [15 points]
+
+For this exercise, we'll analyze weekly wages of US male workers in 1988.  This data is contained in the uswages dataframe from the faraway package.  Before beginning our analyses, the starter code chunk creates a new version of the dataset that is more appropriate for regression purposes.
+
+```{r exercise3starter}
+data(uswages)
+usawages = uswages
+usawages$geo = factor(names(uswages[,6:9])[max.col(uswages[,6:9])])
+usawages = usawages[,-c(6:9)]
+head(usawages)
+```
+
+For this exercise, we will work with the corrected `usawages` data (Note the additional "a" in "usa" at the beginning of the data frame).
+
+## part a
+
+Fit a model to the usawages data, predicting wage from education, experience, living in a Standard Metropolitan Statistical Area (city + surrounding suburbs), and part time status.
+
+```{r exercise3a}
+# Use this code chunk for your answer.
+model4=lm(wage~educ+exper+smsa+pt,data=usawages)
+summary(model4)
+```
+
+## part b
+
+There's a specific vocabulary term that applies to the variable for part time status.  What is that vocabulary term?
+
+**Answer:**
+Binary
+
+## part c
+
+Interpret the coefficients for education and living in a Standard Metropolitan Statistical Area in part a.
+
+**Answer:**
+education
+Value of coeffient is 49.786.This is the amount of variation in education that causes a unit change in wage
+
+smsa
+The value of coeeficient is 111.825.This means that  111.825 units change in smsa result to a single unit change in wages
+
+
+## part d
+
+The model from part a could be written out equivalently as 4 distinct models after partitioning the data based on values recorded in 2 variables.  Write out each of these 4 models, and define to what part of the data these models apply.
+
+**Answer:**
+model 1
+wages=-264.788+49.78(educ)
+education as the only variable
+
+model 2
+wages=-264.788+9.075(exper)
+experience level as the only variable
+
+
+model 3
+wages=-264.788+111.825(smsa)
+
+
+model 4
+wages=-264.788-340.017(pt)
+pt as the only variable
+***
+
+# Exercise 4: Summarizing Interaction in US Wages [25 points]
+
+For this problem, we'll continue working with the usawages dataset, but this time we'll focus on a model that includes an interaction term.
+
+## part a
+
+Fit a model predicting wage from the geographic area that a male worker lives (`geo`), the experience level of that worker, and the interaction of the two variables.  Print the summary of that model.
+
+```{r exercise4a}
+# Use this code chunk for your answer.
+model5=lm(wage~geo,data=usawages)
+summary(model5)
+```
+
+## part b
+
+Using the geographic area variable to separate the data into four different partitions, write out the model for each partition.
+
+**Answer:**
+wage=585.368+46.291(ne)
+wage=585.368+ -4.532(so)
+wage=585.368+  64.598 (we)
+wage=585.368+46.291(ne)-4.532(so) 64.598 (we)
+
+
+## part c
+
+Visualize the relationship between the experience level of the worker, the geographic area, and the wage.  Make sure to include appropriate summary lines in your plot representing the model fitted in part a.
+
+```{r exercise4c}
+# Use this code chunk for your answer.
+modela=lm(wage~exper,data=usawages)
+plot(usawages$wage,usawages$exper)
+abline(modela)
+
+modelb=lm(wage~geo,data=usawages)
+plot(usawages$wage,usawages$geo)
+abline(modelb)
+
+
+```
+
+## part d
+
+Perform a single statistical test to test if at least one of the geographic regions has a different slope from the other regions.  Report the p-value and a conclusion to the problem, indicating if we have evidence that at least one of the regions has a different slopes.  *Hint: we are testing for the different geographic regions simultaneously with one test.*
+
+```{r exercise4d}
+# Use this code chunk for your answer.
+anova(model5)
+```
+
+**Answer:**
+Since the p-value(p-value0.04395) is less than 0.05,we can conclude that at least one of the geographic regions has a different slope from the other regions
+
+## part e
+
+Now, perform a single statistical test to test if at least one of the geographic regions has a different intercept from the other regions, assuming a single, constant slope for experience across all of the geographic regions.  Report the p-value and a conclusion to the problem, indicating if we have evidence that at least one of the regions has a different intercept.  *Hint: we are testing for the different geographic regions simultaneously with one test.*
+
+```{r exercise4e}
+# Use this code chunk for your answer.
+bartlett.test(wage ~ geo,data=usawages)
+```
+
+**Answer:**
+Since p-value = 1.018e-10(is significant),we can conclude that at least one of the geographic regions has a different intercept from the other regions, assuming a single, constant slope for experience across all of the geographic regions
+
+***
+
